@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
   :root{
     --navy:#152A4E;
@@ -730,7 +731,7 @@
       <div class="contact-grid">
         <div class="contact-tile no-translit">
           <div class="label">Имејл</div>
-          <div class="value"slovoibroj@gmail.com</div>
+          <div class="value">slovoibrojonline@gmail.com</div>
         </div>
         <div class="contact-tile no-translit">
           <div class="label">Телефон / Viber</div>
@@ -768,7 +769,7 @@
       <div>
         <h5>Контакт</h5>
         <ul class="foot-links foot-contact no-translit">
-          <li><svg viewBox="0 0 24 24"><use href="#ic-mail"/></svg>slovoibroj@gmail.com</li>
+          <li><svg viewBox="0 0 24 24"><use href="#ic-mail"/></svg>slovoibrojonline@gmail.com</li>
           <li><svg viewBox="0 0 24 24"><use href="#ic-phone"/></svg>+381 6X XXX XXXX</li>
         </ul>
       </div>
@@ -911,11 +912,32 @@
     });
   });
 
+  /* ===== EmailJS — PODESI PRE OBJAVE SAJTA (besplatan nalog na emailjs.com) ===== */
+  var EMAILJS_CONFIG = {
+    publicKey:  'YOUR_PUBLIC_KEY',   // <- Account > General > Public Key
+    serviceId:  'YOUR_SERVICE_ID',   // <- Email Services > tvoj servis (npr. Gmail)
+    templateId: 'YOUR_TEMPLATE_ID'   // <- Email Templates > tvoj template
+  };
+  var emailjsReady = false;
+  try {
+    if (window.emailjs && EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_KEY'){
+      emailjs.init({ publicKey: EMAILJS_CONFIG.publicKey });
+      emailjsReady = true;
+    }
+  } catch (err) { emailjsReady = false; }
+
+  function posaljiPrijavuNaEmail(params){
+    if (!emailjsReady) return;
+    try {
+      emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, params);
+    } catch (err) { /* tiho zanemari — prikaz na ekranu i dalje radi */ }
+  }
+
   /* ===== IPS uplata — PODESI OVE PODATKE PRE OBJAVE SAJTA ===== */
   var IPS_CONFIG = {
-    account: '115-0381628206218-71',      // <- UPIŠI svoj 18-cifreni tekući račun (bez crtica). Nađeš ga u e-bankingu ili na ips.nbs.rs
+    account: '000000000000000000',      // <- UPIŠI svoj 18-cifreni tekući račun (bez crtica). Nađeš ga u e-bankingu ili na ips.nbs.rs
     receiverName: 'Слово и Број, Београд', // <- naziv i sedište primaoca (do ~70 karaktera)
-    paymentCode: '289'                   // šifra plaćanja (221 = promet robe i usluga - finalna potrošnja; menjaj po potrebi)
+    paymentCode: '221'                   // šifra plaćanja (221 = promet robe i usluga - finalna potrošnja; menjaj po potrebi)
   };
   // RSD iznosi po paketu — preračunato po kursu ~117,5 RSD/EUR, ZAOKRUŽI/ISPRAVI po želji
   var PRICE_RSD = {
@@ -957,7 +979,11 @@
         btn.disabled = false;
         label.textContent = (currentScript === 'lat') ? toLatin('Пошаљи пријаву') : 'Пошаљи пријаву';
         pfForm.hidden = true;
-        showPaymentScreen();
+        try {
+          showPaymentScreen();
+        } catch (err) {
+          document.getElementById('prijava-payment').hidden = false;
+        }
       }, 600);
     });
   }
@@ -968,10 +994,27 @@
     var amount = PRICE_RSD[pkgVal] || 0;
     var imeField = pfForm.querySelector('input[name="ime"]');
     var imeVal = imeField ? imeField.value.trim() : '';
+    var razredVal = pfForm.querySelector('select[name="razred"]').value;
+    var telefonVal = pfForm.querySelector('input[name="telefon"]').value.trim();
+    var emailVal = pfForm.querySelector('input[name="email"]').value.trim();
+    var gradVal = pfForm.querySelector('input[name="grad"]').value.trim();
+    var terminEl = pfForm.querySelector('input[name="termin"]:checked');
+    var terminVal = terminEl ? terminEl.value : '';
     var purpose = ('Часови - ' + imeVal + ' - ' + pkgLabel).replace(/\|/g, '-').slice(0, 100);
     var accountClean = IPS_CONFIG.account.replace(/\D/g, '');
     var amountFormatted = 'RSD' + amount.toFixed(2).replace('.', ',');
     var ipsString = 'K:PR|V:01|C:1|R:' + accountClean + '|N:' + IPS_CONFIG.receiverName + '|I:' + amountFormatted + '|SF:' + IPS_CONFIG.paymentCode + '|S:' + purpose;
+
+    posaljiPrijavuNaEmail({
+      ime_ucenika: imeVal,
+      razred: razredVal,
+      telefon: telefonVal,
+      email_ucenika: emailVal,
+      grad: gradVal,
+      termin: terminVal,
+      paket: pkgLabel,
+      iznos: amount.toLocaleString('sr-RS') + ' RSD'
+    });
 
     var amountEl = document.getElementById('pp-amount-value');
     amountEl.textContent = amount.toLocaleString('sr-RS') + ' RSD';
@@ -979,22 +1022,26 @@
     document.getElementById('pp-account').textContent = IPS_CONFIG.account;
     document.getElementById('pp-purpose').textContent = purpose;
 
-    var qrContainer = document.getElementById('pp-qr');
-    qrContainer.innerHTML = '';
-    if (window.QRCode){
-      new QRCode(qrContainer, {
-        text: ipsString, width: 200, height: 200,
-        colorDark: '#152A4E', colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.M
-      });
-    } else {
-      qrContainer.textContent = 'QR библиотека није učitana — proveri internet konekciju.';
-    }
-
     var paymentScreen = document.getElementById('prijava-payment');
     paymentScreen.hidden = false;
     registerNewNodes(paymentScreen);
     paymentScreen.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'center'});
+
+    var qrContainer = document.getElementById('pp-qr');
+    qrContainer.innerHTML = '';
+    try {
+      if (window.QRCode){
+        new QRCode(qrContainer, {
+          text: ipsString, width: 200, height: 200,
+          colorDark: '#152A4E', colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } else {
+        qrContainer.textContent = 'QR кôд тренутно није доступан — проверите интернет конекцију и покушајте поново.';
+      }
+    } catch (err) {
+      qrContainer.textContent = 'QR кôд тренутно није доступан — проверите интернет конекцију и покушајте поново.';
+    }
   }
 
   var ppConfirmBtn = document.getElementById('pp-confirm-btn');
