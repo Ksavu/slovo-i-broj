@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   :root{
     --navy:#152A4E;
@@ -228,18 +227,6 @@
   .pf-note{font-size:.76rem; color:var(--text-faint); text-align:center; margin-top:12px; line-height:1.5;}
   .pf-error{border-color:#E0463C !important; box-shadow:0 0 0 3px rgba(224,70,60,.14) !important;}
   .pf-error-box .pf-radios{outline:1.5px solid #E0463C; outline-offset:6px; border-radius:8px;}
-
-  .prijava-payment{max-width:480px; margin:0 auto 56px; background:var(--card); border:1.5px solid var(--border); border-radius:20px; padding:34px 30px; text-align:center;}
-  .prijava-payment h3{font-size:1.15rem; margin-bottom:12px;}
-  .pp-amount{font-size:1rem; color:var(--text-soft); margin-bottom:6px;}
-  .pp-amount strong{font-family:'Golos Text',sans-serif; font-weight:800; font-size:1.4rem; color:var(--orange);}
-  .pp-qr{display:flex; justify-content:center; margin:18px 0;}
-  .pp-qr img, .pp-qr canvas{border:1.5px solid var(--border); border-radius:12px; padding:8px; background:#fff;}
-  .pp-scan-hint{font-size:.82rem; color:var(--text-faint); margin-bottom:18px;}
-  .pp-details{text-align:left; font-size:.85rem; color:var(--text-soft); margin-bottom:20px; display:grid; gap:8px; background:var(--bg); border-radius:12px; padding:16px 18px;}
-  .pp-details div{display:flex; justify-content:space-between; gap:10px;}
-  .pp-details span:first-child{font-weight:700; color:var(--navy); flex-shrink:0;}
-  .pp-details span:last-child{text-align:right; word-break:break-word;}
 
   .prijava-success{max-width:560px; margin:0 auto 56px; background:var(--green-bg); border:1.5px solid var(--green); border-radius:20px; padding:36px 30px; text-align:center;}
   .ps-icon{width:54px; height:54px; border-radius:50%; background:var(--green); color:#fff; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;}
@@ -705,21 +692,8 @@
         <button type="submit" class="btn btn-orange btn-block" id="pf-submit">
           <span class="pf-btn-label">Пошаљи пријаву</span>
         </button>
-        <p class="pf-note">Након слања приказаће се износ за уплату и IPS QR кôд за плаћање.</p>
+        <p class="pf-note">Кликом на дугме симулира се пријем уплате — за стварну наплату (картица, IPS QR код) и аутоматско слање имејла потребно је повезивање са платним провајдером и сервисом за имејл.</p>
       </form>
-
-      <div id="prijava-payment" class="prijava-payment" hidden>
-        <h3>Уплата за пријаву</h3>
-        <p class="pp-amount">Износ за уплату: <strong id="pp-amount-value">0 RSD</strong></p>
-        <div id="pp-qr" class="pp-qr"></div>
-        <p class="pp-scan-hint">Скенирајте IPS QR кôд мобилном апликацијом ваше банке.</p>
-        <div class="pp-details">
-          <div><span>Прималац:</span><span id="pp-receiver"></span></div>
-          <div><span>Рачун:</span><span id="pp-account"></span></div>
-          <div><span>Сврха уплате:</span><span id="pp-purpose"></span></div>
-        </div>
-        <button type="button" id="pp-confirm-btn" class="btn btn-orange btn-block">Потврђујем да сам уплатио/ла</button>
-      </div>
 
       <div id="prijava-success" class="prijava-success" hidden>
         <div class="ps-icon"><svg viewBox="0 0 24 24"><use href="#ic-check"/></svg></div>
@@ -730,12 +704,8 @@
       <div class="contact-grid">
         <div class="contact-tile no-translit">
           <div class="label">Имејл</div>
-          <div class="value"slovoibroj@gmail.com</div>
-        </div>
-        <div class="contact-tile no-translit">
-          <div class="label">Телефон / Viber</div>
-          <div class="value">+381 6X XXX XXXX</div>
-        </div>
+          <div class="value">slovoibroj@gmail.com</div>
+        </div>        
         <div class="contact-tile">
           <div class="label">Термини</div>
           <div class="value">Пон–Нед</div>
@@ -768,8 +738,7 @@
       <div>
         <h5>Контакт</h5>
         <ul class="foot-links foot-contact no-translit">
-          <li><svg viewBox="0 0 24 24"><use href="#ic-mail"/></svg>slovoibroj@gmail.com</li>
-          <li><svg viewBox="0 0 24 24"><use href="#ic-phone"/></svg>+381 6X XXX XXXX</li>
+          <li><svg viewBox="0 0 24 24"><use href="#ic-mail"/></svg>slovoibroj@gmail.com</li>          
         </ul>
       </div>
     </div>
@@ -911,22 +880,6 @@
     });
   });
 
-  /* ===== IPS uplata — PODESI OVE PODATKE PRE OBJAVE SAJTA ===== */
-  var IPS_CONFIG = {
-    account: '115-0381628206218-71',      // <- UPIŠI svoj 18-cifreni tekući račun (bez crtica). Nađeš ga u e-bankingu ili na ips.nbs.rs
-    receiverName: 'Слово и Број, Београд', // <- naziv i sedište primaoca (do ~70 karaktera)
-    paymentCode: '289'                   // šifra plaćanja (221 = promet robe i usluga - finalna potrošnja; menjaj po potrebi)
-  };
-  // RSD iznosi po paketu — preračunato po kursu ~117,5 RSD/EUR, ZAOKRUŽI/ISPRAVI po želji
-  var PRICE_RSD = {
-    'mala-matura': 14100,
-    'matematika': 9400,
-    'srpski-jezik': 9400,
-    'individualna': 21150,
-    'crash-kurs': 4100,
-    'strani-jezik': 4110
-  };
-
   /* ===== registration form ===== */
   var pfForm = document.getElementById('prijava-form');
   if (pfForm){
@@ -950,61 +903,17 @@
 
       var btn = document.getElementById('pf-submit');
       var label = btn.querySelector('.pf-btn-label');
+      var originalLabel = label.textContent;
       btn.disabled = true;
-      label.textContent = (currentScript === 'lat') ? toLatin('Обрада…') : 'Обрада…';
+      label.textContent = (currentScript === 'lat') ? toLatin('Обрада уплате…') : 'Обрада уплате…';
 
       setTimeout(function(){
-        btn.disabled = false;
-        label.textContent = (currentScript === 'lat') ? toLatin('Пошаљи пријаву') : 'Пошаљи пријаву';
         pfForm.hidden = true;
-        showPaymentScreen();
-      }, 600);
-    });
-  }
-
-  function showPaymentScreen(){
-    var pkgVal = pfPaketSelect ? pfPaketSelect.value : '';
-    var pkgLabel = (pfPaketSelect && pfPaketSelect.selectedIndex >= 0) ? pfPaketSelect.options[pfPaketSelect.selectedIndex].textContent : '';
-    var amount = PRICE_RSD[pkgVal] || 0;
-    var imeField = pfForm.querySelector('input[name="ime"]');
-    var imeVal = imeField ? imeField.value.trim() : '';
-    var purpose = ('Часови - ' + imeVal + ' - ' + pkgLabel).replace(/\|/g, '-').slice(0, 100);
-    var accountClean = IPS_CONFIG.account.replace(/\D/g, '');
-    var amountFormatted = 'RSD' + amount.toFixed(2).replace('.', ',');
-    var ipsString = 'K:PR|V:01|C:1|R:' + accountClean + '|N:' + IPS_CONFIG.receiverName + '|I:' + amountFormatted + '|SF:' + IPS_CONFIG.paymentCode + '|S:' + purpose;
-
-    var amountEl = document.getElementById('pp-amount-value');
-    amountEl.textContent = amount.toLocaleString('sr-RS') + ' RSD';
-    document.getElementById('pp-receiver').textContent = IPS_CONFIG.receiverName;
-    document.getElementById('pp-account').textContent = IPS_CONFIG.account;
-    document.getElementById('pp-purpose').textContent = purpose;
-
-    var qrContainer = document.getElementById('pp-qr');
-    qrContainer.innerHTML = '';
-    if (window.QRCode){
-      new QRCode(qrContainer, {
-        text: ipsString, width: 200, height: 200,
-        colorDark: '#152A4E', colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.M
-      });
-    } else {
-      qrContainer.textContent = 'QR библиотека није učitana — proveri internet konekciju.';
-    }
-
-    var paymentScreen = document.getElementById('prijava-payment');
-    paymentScreen.hidden = false;
-    registerNewNodes(paymentScreen);
-    paymentScreen.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'center'});
-  }
-
-  var ppConfirmBtn = document.getElementById('pp-confirm-btn');
-  if (ppConfirmBtn){
-    ppConfirmBtn.addEventListener('click', function(){
-      document.getElementById('prijava-payment').hidden = true;
-      var success = document.getElementById('prijava-success');
-      success.hidden = false;
-      registerNewNodes(success);
-      success.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'center'});
+        var success = document.getElementById('prijava-success');
+        success.hidden = false;
+        registerNewNodes(success);
+        success.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'center'});
+      }, 900);
     });
   }
 
