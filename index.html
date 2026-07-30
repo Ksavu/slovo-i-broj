@@ -231,16 +231,42 @@
   .pf-error-box .pf-radios{outline:1.5px solid #E0463C; outline-offset:6px; border-radius:8px;}
 
   .prijava-payment{max-width:480px; margin:0 auto 56px; background:var(--card); border:1.5px solid var(--border); border-radius:20px; padding:34px 30px; text-align:center;}
+  .pp-warning{background:#FFF4E5; border:1.5px solid var(--orange); color:#8A4B0E; font-size:.8rem; line-height:1.5; text-align:left; padding:12px 14px; border-radius:10px; margin-bottom:18px;}
+  .pp-warning code{background:rgba(0,0,0,.06); padding:1px 5px; border-radius:4px; font-size:.86em;}
   .prijava-payment h3{font-size:1.15rem; margin-bottom:12px;}
   .pp-amount{font-size:1rem; color:var(--text-soft); margin-bottom:6px;}
   .pp-amount strong{font-family:'Golos Text',sans-serif; font-weight:800; font-size:1.4rem; color:var(--orange);}
-  .pp-qr{display:flex; justify-content:center; margin:18px 0;}
+  .pp-tabs{display:flex; gap:6px; background:var(--bg); border-radius:999px; padding:4px; margin:18px 0;}
+  .pp-tab{flex:1; border:none; background:none; padding:9px 10px; border-radius:999px; font-family:'Golos Text',sans-serif; font-weight:700; font-size:.78rem; color:var(--text-soft); cursor:pointer; transition:background .2s, color .2s;}
+  .pp-tab.active{background:var(--navy); color:#fff;}
+  .pp-qr{display:flex; justify-content:center; margin:6px 0 14px;}
   .pp-qr img, .pp-qr canvas{border:1.5px solid var(--border); border-radius:12px; padding:8px; background:#fff;}
-  .pp-scan-hint{font-size:.82rem; color:var(--text-faint); margin-bottom:18px;}
+  .pp-scan-hint{font-size:.82rem; color:var(--text-faint); margin-bottom:14px;}
+  .pp-verify-link{display:inline-block; font-size:.8rem; font-weight:700; color:var(--blue); margin-bottom:6px;}
   .pp-details{text-align:left; font-size:.85rem; color:var(--text-soft); margin-bottom:20px; display:grid; gap:8px; background:var(--bg); border-radius:12px; padding:16px 18px;}
   .pp-details div{display:flex; justify-content:space-between; gap:10px;}
   .pp-details span:first-child{font-weight:700; color:var(--navy); flex-shrink:0;}
   .pp-details span:last-child{text-align:right; word-break:break-word;}
+
+  .uplatnica{border:1.5px solid var(--navy); border-radius:10px; overflow:hidden; text-align:left; margin-bottom:16px; background:#fff;}
+  .up-row{border-bottom:1px solid var(--border); padding:9px 12px;}
+  .up-row:last-child{border-bottom:none;}
+  .up-2col{display:flex; gap:12px;}
+  .up-2col .up-col{flex:1;}
+  .up-header{display:flex; justify-content:space-between; background:var(--bg);}
+  .up-right{text-align:right;}
+  .up-label{font-size:.66rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--text-faint); margin-bottom:3px;}
+  .up-value{font-size:.9rem; font-weight:600; color:var(--navy); word-break:break-word;}
+  .up-mono{font-family:'PT Mono', monospace, 'Inter'; letter-spacing:.03em;}
+
+  @media print{
+    body *{visibility:hidden;}
+    #uplatnica, #uplatnica *{visibility:visible;}
+    #uplatnica{position:absolute; top:20px; left:50%; transform:translateX(-50%); width:340px; border-color:#000;}
+    .up-label{color:#555;}
+    .up-value{color:#000;}
+  }
+
 
   .prijava-success{max-width:560px; margin:0 auto 56px; background:var(--green-bg); border:1.5px solid var(--green); border-radius:20px; padding:36px 30px; text-align:center;}
   .ps-icon{width:54px; height:54px; border-radius:50%; background:var(--green); color:#fff; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;}
@@ -706,14 +732,77 @@
         <button type="submit" class="btn btn-orange btn-block" id="pf-submit">
           <span class="pf-btn-label">Пошаљи пријаву</span>
         </button>
-        <p class="pf-note">Након слања приказаће се износ за уплату и IPS QR кôд за плаћање.</p>
+        <p class="pf-note">Након слања приказаће се износ за уплату и IPS QR код за плаћање.</p>
       </form>
 
       <div id="prijava-payment" class="prijava-payment" hidden>
+        <div id="pp-config-warning" class="pp-warning" hidden>
+          ⚠️ Рачун примаоца у подешавањима сајта још увек није унет (плацехолдер). QR код ће се приказати, али банка ће га одбити док не унесеш прави 18-цифрени рачун у <code>IPS_CONFIG</code> у коду.
+        </div>
+
         <h3>Уплата за пријаву</h3>
         <p class="pp-amount">Износ за уплату: <strong id="pp-amount-value">0 RSD</strong></p>
-        <div id="pp-qr" class="pp-qr"></div>
-        <p class="pp-scan-hint">Скенирајте IPS QR кôд мобилном апликацијом ваше банке.</p>
+
+        <div class="pp-tabs">
+          <button type="button" class="pp-tab active" data-tab="qr">IPS QR код</button>
+          <button type="button" class="pp-tab" data-tab="slip">Уплатница за штампу</button>
+        </div>
+
+        <div id="pp-tab-qr" class="pp-tab-panel">
+          <div id="pp-qr" class="pp-qr"></div>
+          <p class="pp-scan-hint">Скенирајте IPS QR код мобилном апликацијом ваше банке.</p>
+          <a href="https://ips.nbs.rs/sr_lat/qr-validacija-generisanje/validacija-formata-qr-koda-uputstvo" target="_blank" rel="noopener" class="pp-verify-link no-translit">Провери QR код на NBS сајту →</a>
+        </div>
+
+        <div id="pp-tab-slip" class="pp-tab-panel" hidden>
+          <div id="uplatnica" class="uplatnica">
+            <div class="up-row up-header">
+              <div class="up-col">
+                <div class="up-label">Налог за уплату</div>
+              </div>
+              <div class="up-col up-right">
+                <div class="up-label">Печат/потпис уплатиоца</div>
+              </div>
+            </div>
+            <div class="up-row">
+              <div class="up-col">
+                <div class="up-label">Прималац</div>
+                <div class="up-value" id="up-receiver"></div>
+              </div>
+            </div>
+            <div class="up-row up-2col">
+              <div class="up-col">
+                <div class="up-label">Шифра плаћања</div>
+                <div class="up-value" id="up-code"></div>
+              </div>
+              <div class="up-col">
+                <div class="up-label">Валута и износ</div>
+                <div class="up-value" id="up-amount"></div>
+              </div>
+            </div>
+            <div class="up-row">
+              <div class="up-col">
+                <div class="up-label">Рачун примаоца</div>
+                <div class="up-value up-mono" id="up-account"></div>
+              </div>
+            </div>
+            <div class="up-row">
+              <div class="up-col">
+                <div class="up-label">Сврха уплате</div>
+                <div class="up-value" id="up-purpose"></div>
+              </div>
+            </div>
+            <div class="up-row">
+              <div class="up-col">
+                <div class="up-label">Уплатилац (име, презиме, адреса)</div>
+                <div class="up-value" id="up-payer"></div>
+              </div>
+            </div>
+          </div>
+          <p class="pp-scan-hint">Одштампајте или сачувајте као PDF, па однесите на шалтер поште или банке.</p>
+          <button type="button" id="pp-print-btn" class="btn btn-navy btn-block no-translit">🖨️ Одштампај / сачувај уплатницу</button>
+        </div>
+
         <div class="pp-details">
           <div><span>Прималац:</span><span id="pp-receiver"></span></div>
           <div><span>Рачун:</span><span id="pp-account"></span></div>
@@ -914,8 +1003,8 @@
 
   /* ===== EmailJS — PODESI PRE OBJAVE SAJTA (besplatan nalog na emailjs.com) ===== */
   var EMAILJS_CONFIG = {
-    publicKey:  'YVcAmYW-WNoFD-LdY',   // <- Account > General > Public Key
-    serviceId:  'service_g9v9xc5',   // <- Email Services > tvoj servis (npr. Gmail)
+    publicKey:  'YOUR_PUBLIC_KEY',   // <- Account > General > Public Key
+    serviceId:  'YOUR_SERVICE_ID',   // <- Email Services > tvoj servis (npr. Gmail)
     templateId: 'YOUR_TEMPLATE_ID'   // <- Email Templates > tvoj template
   };
   var emailjsReady = false;
@@ -1022,6 +1111,17 @@
     document.getElementById('pp-account').textContent = IPS_CONFIG.account;
     document.getElementById('pp-purpose').textContent = purpose;
 
+    var isPlaceholderAccount = /^0+$/.test(accountClean) || accountClean.length !== 18;
+    var warningEl = document.getElementById('pp-config-warning');
+    if (warningEl) warningEl.hidden = !isPlaceholderAccount;
+
+    document.getElementById('up-receiver').textContent = IPS_CONFIG.receiverName;
+    document.getElementById('up-code').textContent = IPS_CONFIG.paymentCode;
+    document.getElementById('up-amount').textContent = amount.toLocaleString('sr-RS') + ',00 RSD';
+    document.getElementById('up-account').textContent = IPS_CONFIG.account;
+    document.getElementById('up-purpose').textContent = purpose;
+    document.getElementById('up-payer').textContent = imeVal + (gradVal ? (', ' + gradVal) : '');
+
     var paymentScreen = document.getElementById('prijava-payment');
     paymentScreen.hidden = false;
     registerNewNodes(paymentScreen);
@@ -1037,10 +1137,10 @@
           correctLevel: QRCode.CorrectLevel.M
         });
       } else {
-        qrContainer.textContent = 'QR кôд тренутно није доступан — проверите интернет конекцију и покушајте поново.';
+        qrContainer.textContent = 'QR код тренутно није доступан — проверите интернет конекцију и покушајте поново.';
       }
     } catch (err) {
-      qrContainer.textContent = 'QR кôд тренутно није доступан — проверите интернет конекцију и покушајте поново.';
+      qrContainer.textContent = 'QR код тренутно није доступан — проверите интернет конекцију и покушајте поново.';
     }
   }
 
@@ -1053,6 +1153,22 @@
       registerNewNodes(success);
       success.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'center'});
     });
+  }
+
+  var ppTabs = document.querySelectorAll('.pp-tab');
+  ppTabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      ppTabs.forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      var target = tab.getAttribute('data-tab');
+      document.getElementById('pp-tab-qr').hidden = (target !== 'qr');
+      document.getElementById('pp-tab-slip').hidden = (target !== 'slip');
+    });
+  });
+
+  var ppPrintBtn = document.getElementById('pp-print-btn');
+  if (ppPrintBtn){
+    ppPrintBtn.addEventListener('click', function(){ window.print(); });
   }
 
   /* ===== consultation modal ===== */
