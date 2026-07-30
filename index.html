@@ -249,20 +249,25 @@
   .pp-details span:last-child{text-align:right; word-break:break-word;}
 
   .uplatnica{border:1.5px solid var(--navy); border-radius:10px; overflow:hidden; text-align:left; margin-bottom:16px; background:#fff;}
+  .up-title{background:var(--navy); color:#fff; font-family:'Golos Text',sans-serif; font-weight:800; font-size:.78rem; letter-spacing:.06em; text-align:center; padding:9px 12px;}
   .up-row{border-bottom:1px solid var(--border); padding:9px 12px;}
   .up-row:last-child{border-bottom:none;}
   .up-2col{display:flex; gap:12px;}
   .up-2col .up-col{flex:1;}
-  .up-header{display:flex; justify-content:space-between; background:var(--bg);}
+  .up-3col{display:flex; gap:12px;}
+  .up-3col .up-col{flex:1;}
+  .up-footer{background:var(--bg);}
   .up-right{text-align:right;}
   .up-label{font-size:.66rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--text-faint); margin-bottom:3px;}
   .up-value{font-size:.9rem; font-weight:600; color:var(--navy); word-break:break-word;}
   .up-mono{font-family:'PT Mono', monospace, 'Inter'; letter-spacing:.03em;}
+  .pp-qr-loading{font-size:.85rem; color:var(--text-faint);}
 
   @media print{
     body *{visibility:hidden;}
     #uplatnica, #uplatnica *{visibility:visible;}
-    #uplatnica{position:absolute; top:20px; left:50%; transform:translateX(-50%); width:340px; border-color:#000;}
+    #uplatnica{position:absolute; top:20px; left:50%; transform:translateX(-50%); width:360px; border-color:#000;}
+    .up-title{background:#000 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
     .up-label{color:#555;}
     .up-value{color:#000;}
   }
@@ -751,51 +756,62 @@
         <div id="pp-tab-qr" class="pp-tab-panel">
           <div id="pp-qr" class="pp-qr"></div>
           <p class="pp-scan-hint">Скенирајте IPS QR код мобилном апликацијом ваше банке.</p>
-          <a href="https://ips.nbs.rs/sr_lat/qr-validacija-generisanje/validacija-formata-qr-koda-uputstvo" target="_blank" rel="noopener" class="pp-verify-link no-translit">Провери QR код на NBS сајту →</a>
+          <a href="https://ips.nbs.rs/sr_lat/qr-validacija-generisanje/validator-nbs-ips-qr-koda" target="_blank" rel="noopener" class="pp-verify-link no-translit">Провери QR код на NBS сајту →</a>
         </div>
 
         <div id="pp-tab-slip" class="pp-tab-panel" hidden>
           <div id="uplatnica" class="uplatnica">
-            <div class="up-row up-header">
-              <div class="up-col">
-                <div class="up-label">Налог за уплату</div>
-              </div>
-              <div class="up-col up-right">
-                <div class="up-label">Печат/потпис уплатиоца</div>
-              </div>
-            </div>
-            <div class="up-row">
-              <div class="up-col">
-                <div class="up-label">Прималац</div>
-                <div class="up-value" id="up-receiver"></div>
-              </div>
-            </div>
+            <div class="up-title">НАЛОГ ЗА УПЛАТУ</div>
+
             <div class="up-row up-2col">
               <div class="up-col">
-                <div class="up-label">Шифра плаћања</div>
-                <div class="up-value" id="up-code"></div>
+                <div class="up-label">Уплатилац (име, презиме, адреса)</div>
+                <div class="up-value" id="up-payer"></div>
               </div>
-              <div class="up-col">
-                <div class="up-label">Валута и износ</div>
-                <div class="up-value" id="up-amount"></div>
-              </div>
-            </div>
-            <div class="up-row">
-              <div class="up-col">
-                <div class="up-label">Рачун примаоца</div>
-                <div class="up-value up-mono" id="up-account"></div>
-              </div>
-            </div>
-            <div class="up-row">
               <div class="up-col">
                 <div class="up-label">Сврха уплате</div>
                 <div class="up-value" id="up-purpose"></div>
               </div>
             </div>
+
             <div class="up-row">
+              <div class="up-label">Прималац</div>
+              <div class="up-value" id="up-receiver"></div>
+            </div>
+
+            <div class="up-row up-3col">
               <div class="up-col">
-                <div class="up-label">Уплатилац (име, презиме, адреса)</div>
-                <div class="up-value" id="up-payer"></div>
+                <div class="up-label">Шифра плаћања</div>
+                <div class="up-value" id="up-code"></div>
+              </div>
+              <div class="up-col">
+                <div class="up-label">Валута</div>
+                <div class="up-value">RSD</div>
+              </div>
+              <div class="up-col">
+                <div class="up-label">Износ</div>
+                <div class="up-value" id="up-amount"></div>
+              </div>
+            </div>
+
+            <div class="up-row">
+              <div class="up-label">Рачун примаоца</div>
+              <div class="up-value up-mono" id="up-account"></div>
+            </div>
+
+            <div class="up-row">
+              <div class="up-label">Модел и позив на број (одобрење)</div>
+              <div class="up-value">—</div>
+            </div>
+
+            <div class="up-row up-2col up-footer">
+              <div class="up-col">
+                <div class="up-label">Место и датум пријема</div>
+                <div class="up-value">&nbsp;</div>
+              </div>
+              <div class="up-col up-right">
+                <div class="up-label">Печат и потпис уплатиоца</div>
+                <div class="up-value">&nbsp;</div>
               </div>
             </div>
           </div>
@@ -1024,9 +1040,9 @@
 
   /* ===== IPS uplata — PODESI OVE PODATKE PRE OBJAVE SAJTA ===== */
   var IPS_CONFIG = {
-    account: '115038162820621871',      // <- UPIŠI svoj 18-cifreni tekući račun (bez crtica). Nađeš ga u e-bankingu ili na ips.nbs.rs
+    account: '000000000000000000',      // <- UPIŠI svoj 18-cifreni tekući račun (bez crtica). Nađeš ga u e-bankingu ili na ips.nbs.rs
     receiverName: 'Слово и Број, Београд', // <- naziv i sedište primaoca (do ~70 karaktera)
-    paymentCode: '289'                   // šifra plaćanja (221 = promet robe i usluga - finalna potrošnja; menjaj po potrebi)
+    paymentCode: '221'                   // šifra plaćanja (221 = promet robe i usluga - finalna potrošnja; menjaj po potrebi)
   };
   // RSD iznosi po paketu — preračunato po kursu ~117,5 RSD/EUR, ZAOKRUŽI/ISPRAVI po želji
   var PRICE_RSD = {
@@ -1117,7 +1133,7 @@
 
     document.getElementById('up-receiver').textContent = IPS_CONFIG.receiverName;
     document.getElementById('up-code').textContent = IPS_CONFIG.paymentCode;
-    document.getElementById('up-amount').textContent = amount.toLocaleString('sr-RS') + ',00 RSD';
+    document.getElementById('up-amount').textContent = '=' + amount.toLocaleString('sr-RS', {minimumFractionDigits:2, maximumFractionDigits:2});
     document.getElementById('up-account').textContent = IPS_CONFIG.account;
     document.getElementById('up-purpose').textContent = purpose;
     document.getElementById('up-payer').textContent = imeVal + (gradVal ? (', ' + gradVal) : '');
@@ -1128,20 +1144,50 @@
     paymentScreen.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'center'});
 
     var qrContainer = document.getElementById('pp-qr');
-    qrContainer.innerHTML = '';
-    try {
-      if (window.QRCode){
-        new QRCode(qrContainer, {
-          text: ipsString, width: 200, height: 200,
-          colorDark: '#152A4E', colorLight: '#ffffff',
-          correctLevel: QRCode.CorrectLevel.M
-        });
-      } else {
-        qrContainer.textContent = 'QR код тренутно није доступан — проверите интернет конекцију и покушајте поново.';
-      }
-    } catch (err) {
-      qrContainer.textContent = 'QR код тренутно није доступан — проверите интернет конекцију и покушајте поново.';
-    }
+    qrContainer.innerHTML = '<span class="pp-qr-loading">Учитавање QR кôда…</span>';
+    renderQrWithFallback(qrContainer, ipsString);
+  }
+
+  var QR_LIB_SOURCES = [
+    'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
+    'https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js',
+    'https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@gh-pages/qrcode.min.js'
+  ];
+  function loadScriptOnce(src){
+    return new Promise(function(resolve, reject){
+      var existing = document.querySelector('script[src="' + src + '"]');
+      if (existing){ resolve(); return; }
+      var s = document.createElement('script');
+      s.src = src;
+      s.onload = function(){ resolve(); };
+      s.onerror = function(){ reject(new Error('load failed: ' + src)); };
+      document.head.appendChild(s);
+    });
+  }
+  function ensureQrLib(sources){
+    if (window.QRCode) return Promise.resolve();
+    if (!sources.length) return Promise.reject(new Error('no more sources'));
+    var next = sources.slice(1);
+    return loadScriptOnce(sources[0]).then(function(){
+      if (window.QRCode) return;
+      return ensureQrLib(next);
+    }).catch(function(){
+      return ensureQrLib(next);
+    });
+  }
+  function renderQrWithFallback(container, text){
+    ensureQrLib(QR_LIB_SOURCES.slice()).then(function(){
+      container.innerHTML = '';
+      if (!window.QRCode) throw new Error('QRCode still unavailable');
+      new QRCode(container, {
+        text: text, width: 200, height: 200,
+        colorDark: '#152A4E', colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }).catch(function(){
+      container.innerHTML = '';
+      container.textContent = 'QR код тренутно није доступан — покушајте поново или користите картицу "Уплатница за штампу".';
+    });
   }
 
   var ppConfirmBtn = document.getElementById('pp-confirm-btn');
