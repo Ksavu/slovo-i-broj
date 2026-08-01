@@ -249,28 +249,51 @@
   .pp-details span:first-child{font-weight:700; color:var(--navy); flex-shrink:0;}
   .pp-details span:last-child{text-align:right; word-break:break-word;}
 
-  .uplatnica{border:1.5px solid var(--navy); border-radius:10px; overflow:hidden; text-align:left; margin-bottom:16px; background:#fff;}
-  .up-title{background:var(--navy); color:#fff; font-family:'Golos Text',sans-serif; font-weight:800; font-size:.78rem; letter-spacing:.06em; text-align:center; padding:9px 12px;}
-  .up-row{border-bottom:1px solid var(--border); padding:9px 12px;}
-  .up-row:last-child{border-bottom:none;}
-  .up-2col{display:flex; gap:12px;}
-  .up-2col .up-col{flex:1;}
-  .up-3col{display:flex; gap:12px;}
-  .up-3col .up-col{flex:1;}
-  .up-footer{background:var(--bg);}
-  .up-right{text-align:right;}
-  .up-label{font-size:.66rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--text-faint); margin-bottom:3px;}
-  .up-value{font-size:.9rem; font-weight:600; color:var(--navy); word-break:break-word;}
+  /* Уплатница — распоред "Налог за уплату, образац бр. 1" */
+  .uplatnica{
+    border:1.3px solid #222; text-align:left; margin-bottom:16px;
+    background:#fff; color:#111; font-family:'Inter',sans-serif;
+    padding:10px; position:relative;
+  }
+  .up-main{display:flex; gap:10px;}
+  .up-left{flex:1.7; display:flex; flex-direction:column; gap:0;}
+  .up-right{flex:1; display:flex; flex-direction:column; gap:0; border-left:1.3px solid #222; padding-left:10px;}
+
+  .up-box{border:1px solid #222; padding:4px 7px 6px; margin-bottom:8px;}
+  .up-box-tall{min-height:44px;}
+  .up-box-sm{padding:3px 6px 5px; margin-bottom:0;}
+  .up-box-grow{flex:1;}
+  .up-left .up-box-tall:last-of-type{flex:1; min-height:56px;}
+
+  .up-label{font-size:.6rem; font-weight:600; color:#444; text-transform:none; margin-bottom:2px; letter-spacing:0;}
+  .up-value{font-size:.86rem; font-weight:600; color:#111; word-break:break-word; min-height:1.1em;}
   .up-mono{font-family:'PT Mono', monospace, 'Inter'; letter-spacing:.03em;}
+
+  .up-sign{border-top:1px solid #222; margin-top:auto; padding-top:4px; font-size:.62rem; color:#444; text-align:left;}
+
+  .up-title{font-family:'Golos Text',sans-serif; font-weight:800; font-size:.86rem; text-align:right; letter-spacing:.01em; color:#111; margin-bottom:6px;}
+
+  .up-row3{display:flex; gap:0; border:1px solid #222; margin-bottom:8px;}
+  .up-row3 .up-box{border:none; border-right:1px solid #222; margin-bottom:0; flex:1;}
+  .up-row3 .up-box:last-child{border-right:none;}
+
+  .up-row2{display:flex; gap:0; border:1px solid #222; margin-bottom:8px;}
+  .up-row2 .up-box{border:none; border-right:1px solid #222; margin-bottom:0; flex:1;}
+  .up-row2 .up-box:last-child{border-right:none;}
+
+  .up-hitno{margin-top:auto; display:flex; align-items:center; justify-content:flex-end; gap:8px; font-size:.68rem; color:#333;}
+  .up-checkbox{width:16px; height:16px; border:1.3px solid #222; display:inline-block;}
+
+  .up-footer{display:flex; justify-content:space-between; border-top:1px solid #222; margin-top:10px; padding-top:16px; font-size:.62rem; color:#444;}
+  .up-right-text{text-align:right;}
+  .up-form-num{position:absolute; bottom:6px; right:10px; font-size:.58rem; color:#777;}
+
   .pp-qr-loading{font-size:.85rem; color:var(--text-faint);}
 
   @media print{
     body *{visibility:hidden;}
     #uplatnica, #uplatnica *{visibility:visible;}
-    #uplatnica{position:absolute; top:20px; left:50%; transform:translateX(-50%); width:360px; border-color:#000;}
-    .up-title{background:#000 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
-    .up-label{color:#555;}
-    .up-value{color:#000;}
+    #uplatnica{position:absolute; top:20px; left:50%; transform:translateX(-50%); width:480px; border-color:#000;}
   }
 
 
@@ -772,59 +795,66 @@
 
         <div id="pp-tab-slip" class="pp-tab-panel" hidden>
           <div id="uplatnica" class="uplatnica">
-            <div class="up-title">НАЛОГ ЗА УПЛАТУ</div>
-
-            <div class="up-row up-2col">
-              <div class="up-col">
-                <div class="up-label">Уплатилац (име, презиме, адреса)</div>
-                <div class="up-value" id="up-payer"></div>
+            <div class="up-main">
+              <div class="up-left">
+                <div class="up-box up-box-tall">
+                  <div class="up-label">Платилац</div>
+                  <div class="up-value" id="up-payer"></div>
+                </div>
+                <div class="up-box up-box-tall">
+                  <div class="up-label">Сврха уплате</div>
+                  <div class="up-value" id="up-purpose"></div>
+                </div>
+                <div class="up-box up-box-tall up-box-grow">
+                  <div class="up-label">Прималац</div>
+                  <div class="up-value" id="up-receiver"></div>
+                </div>
+                <div class="up-sign">Потпис платиоца</div>
               </div>
-              <div class="up-col">
-                <div class="up-label">Сврха уплате</div>
-                <div class="up-value" id="up-purpose"></div>
+
+              <div class="up-right">
+                <div class="up-title">НАЛОГ ЗА УПЛАТУ</div>
+
+                <div class="up-row3">
+                  <div class="up-box up-box-sm">
+                    <div class="up-label">Шифра плаћања</div>
+                    <div class="up-value" id="up-code"></div>
+                  </div>
+                  <div class="up-box up-box-sm">
+                    <div class="up-label">Валута</div>
+                    <div class="up-value">RSD</div>
+                  </div>
+                  <div class="up-box up-box-sm up-box-grow">
+                    <div class="up-label">Износ</div>
+                    <div class="up-value" id="up-amount"></div>
+                  </div>
+                </div>
+
+                <div class="up-box">
+                  <div class="up-label">Рачун примаоца</div>
+                  <div class="up-value up-mono" id="up-account"></div>
+                </div>
+
+                <div class="up-row2">
+                  <div class="up-box up-box-sm">
+                    <div class="up-label">Број модела</div>
+                    <div class="up-value">—</div>
+                  </div>
+                  <div class="up-box up-box-sm up-box-grow">
+                    <div class="up-label">Позив на број (одобрење)</div>
+                    <div class="up-value">—</div>
+                  </div>
+                </div>
+
+                <div class="up-hitno"><span>Хитно</span><i class="up-checkbox"></i></div>
               </div>
             </div>
 
-            <div class="up-row">
-              <div class="up-label">Прималац</div>
-              <div class="up-value" id="up-receiver"></div>
+            <div class="up-footer">
+              <div class="up-footer-col">Место и датум пријема</div>
+              <div class="up-footer-col up-right-text">Датум извршења</div>
             </div>
-
-            <div class="up-row up-3col">
-              <div class="up-col">
-                <div class="up-label">Шифра плаћања</div>
-                <div class="up-value" id="up-code"></div>
-              </div>
-              <div class="up-col">
-                <div class="up-label">Валута</div>
-                <div class="up-value">RSD</div>
-              </div>
-              <div class="up-col">
-                <div class="up-label">Износ</div>
-                <div class="up-value" id="up-amount"></div>
-              </div>
-            </div>
-
-            <div class="up-row">
-              <div class="up-label">Рачун примаоца</div>
-              <div class="up-value up-mono" id="up-account"></div>
-            </div>
-
-            <div class="up-row">
-              <div class="up-label">Модел и позив на број (одобрење)</div>
-              <div class="up-value">—</div>
-            </div>
-
-            <div class="up-row up-2col up-footer">
-              <div class="up-col">
-                <div class="up-label">Место и датум пријема</div>
-                <div class="up-value">&nbsp;</div>
-              </div>
-              <div class="up-col up-right">
-                <div class="up-label">Печат и потпис уплатиоца</div>
-                <div class="up-value">&nbsp;</div>
-              </div>
-            </div>
+            <div class="up-form-num">Образац бр. 1</div>
           </div>
           <p class="pp-scan-hint">Одштампајте или сачувајте као PDF, па однесите на шалтер поште или банке.</p>
           <button type="button" id="pp-print-btn" class="btn btn-navy btn-block no-translit">🖨️ Одштампај / сачувај уплатницу</button>
@@ -1030,10 +1060,11 @@
 
   /* ===== EmailJS — PODESI PRE OBJAVE SAJTA (besplatan nalog na emailjs.com) ===== */
   var EMAILJS_CONFIG = {
-    publicKey:   'YOUR_PUBLIC_KEY',    // <- Account > General > Public Key
-    serviceId:   'YOUR_SERVICE_ID',    // <- Email Services > tvoj servis (npr. Gmail)
-    templateId:  'YOUR_TEMPLATE_ID',   // <- Email Templates > template koji STIŽE TEBI (škola) sa svim podacima prijave
-    templateIdPotvrda: 'YOUR_CONFIRMATION_TEMPLATE_ID'  // <- drugi template koji STIŽE RODITELJU kao automatska potvrda prijema (To Email u tom template-u mora biti {{email_ucenika}})
+    publicKey:   'YVcAmYW-WNoFD-LdY',    // <- Account > General > Public Key
+    serviceId:   'service_g9v9xc5',    // <- Email Services > tvoj servis (npr. Gmail)
+    templateId:  'template_4e08kf9',   // <- Email Templates > template koji STIŽE TEBI (škola) sa svim podacima prijave
+    templateIdPotvrda: 'template_8bcnbc8',  // <- drugi template koji STIŽE RODITELJU kao automatska potvrda prijema (To Email u tom template-u mora biti {{email_ucenika}})
+    templateIdKonsultacija: 'YOUR_KONSULTACIJA_TEMPLATE_ID'  // <- treći template za upite sa dugmeta "Zakaži besplatnu konsultaciju" — STIŽE TEBI (To Email = tvoj imejl)
   };
   var emailjsReady = false;
   try {
@@ -1055,6 +1086,15 @@
         emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateIdPotvrda, params);
       }
     } catch (err) { /* tiho zanemari — prikaz na ekranu i dalje radi */ }
+  }
+
+  function posaljiKonsultacijuNaEmail(params){
+    if (!emailjsReady) return;
+    try {
+      if (EMAILJS_CONFIG.templateIdKonsultacija !== 'YOUR_KONSULTACIJA_TEMPLATE_ID'){
+        emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateIdKonsultacija, params);
+      }
+    } catch (err) { /* tiho zanemari */ }
   }
 
   /* ===== IPS uplata — PODESI OVE PODATKE PRE OBJAVE SAJTA ===== */
@@ -1271,6 +1311,14 @@
         if (!f.value.trim()){ valid = false; f.classList.add('pf-error'); }
       });
       if (!valid) return;
+
+      posaljiKonsultacijuNaEmail({
+        ime_ucenika: konsultForm.querySelector('input[name="ime"]').value.trim(),
+        telefon: konsultForm.querySelector('input[name="telefon"]').value.trim(),
+        email_ucenika: konsultForm.querySelector('input[name="email"]').value.trim(),
+        razred: konsultForm.querySelector('select[name="razred"]').value,
+        poruka: konsultForm.querySelector('textarea[name="poruka"]').value.trim()
+      });
 
       konsultFormWrap.hidden = true;
       konsultSuccess.hidden = false;
