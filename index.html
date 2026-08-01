@@ -289,11 +289,14 @@
   .up-form-num{position:absolute; bottom:6px; right:10px; font-size:.58rem; color:#777;}
 
   .pp-qr-loading{font-size:.85rem; color:var(--text-faint);}
+  .pp-slip-actions{display:flex; gap:10px;}
+  .pp-slip-actions .btn{flex:1;}
 
   @media print{
+    @page{ size: 210mm 100mm; margin: 0; }
     body *{visibility:hidden;}
     #uplatnica, #uplatnica *{visibility:visible;}
-    #uplatnica{position:absolute; top:20px; left:50%; transform:translateX(-50%); width:480px; border-color:#000;}
+    #uplatnica{position:absolute; top:0; left:0; width:210mm; height:100mm; border-color:#000; margin:0; box-sizing:border-box;}
   }
 
 
@@ -857,7 +860,10 @@
             <div class="up-form-num">Образац бр. 1</div>
           </div>
           <p class="pp-scan-hint">Одштампајте или сачувајте као PDF, па однесите на шалтер поште или банке.</p>
-          <button type="button" id="pp-print-btn" class="btn btn-navy btn-block no-translit">🖨️ Одштампај / сачувај уплатницу</button>
+          <div class="pp-slip-actions">
+            <button type="button" id="pp-print-btn" class="btn btn-navy btn-block no-translit">🖨️ Одштампај</button>
+            <button type="button" id="pp-download-btn" class="btn btn-orange btn-block no-translit">⬇️ Преузми уплатницу</button>
+          </div>
         </div>
 
         <div class="pp-details">
@@ -1112,6 +1118,14 @@
     'crash-kurs': 4100,
     'strani-jezik': 4110
   };
+  var PKG_SHORT_NAME = {
+    'mala-matura': 'Мала матура',
+    'matematika': 'Математика',
+    'srpski-jezik': 'Српски језик',
+    'individualna': 'Индивидуална настава',
+    'crash-kurs': 'Crash курс',
+    'strani-jezik': 'Српски за странце'
+  };
 
   /* ===== registration form ===== */
   var pfForm = document.getElementById('prijava-form');
@@ -1168,7 +1182,8 @@
     var terminVal = terminEl ? terminEl.value : '';
 
     // prikaz (ćirilica, čitljivo ljudima) — koristi se na ekranu i na štampanoj uplatnici
-    var purposeDisplay = 'Часови';
+    var kratakNazivPaketa = PKG_SHORT_NAME[pkgVal] || pkgLabel;
+    var purposeDisplay = 'Часови - ' + kratakNazivPaketa;
     var payerDisplay = roditeljVal + (adresaVal ? (', ' + adresaVal) : '') + (gradVal ? (', ' + gradVal) : '');
 
     // IPS QR string mora biti "bezbedan" zapis: samo latinična slova/brojevi/razmak/osnovna interpunkcija,
@@ -1218,12 +1233,11 @@
     renderQrImage(qrContainer, ipsString);
   }
 
-  // Latinizuje i čisti tekst za IPS QR tagove (N, S) — samo slova A-Z/a-z, brojevi, razmak i . , - /
+  // Latinizuje i čisti tekst za IPS QR tagove (N, S) — čuva č/ć/š/ž/đ (validne UTF-8 karaktere),
+  // uklanja samo znakove koje NBS validator odbija (npr. tipografski navodnici, zapete u N/S)
   function sanitizeIpsField(text, maxLen){
     var latin = toLatin(text || '');
-    var diacritics = {'č':'c','ć':'c','ž':'z','š':'s','đ':'dj','Č':'C','Ć':'C','Ž':'Z','Š':'S','Đ':'Dj'};
-    latin = latin.replace(/[čćžšđČĆŽŠĐ]/g, function(ch){ return diacritics[ch]; });
-    latin = latin.replace(/[^A-Za-z0-9 .,\-\/]/g, '');
+    latin = latin.replace(/[^A-Za-zČčĆćŽžŠšĐđ0-9 .\-\/]/g, '');
     latin = latin.replace(/\s+/g, ' ').trim();
     return latin.slice(0, maxLen);
   }
@@ -1267,6 +1281,147 @@
   var ppPrintBtn = document.getElementById('pp-print-btn');
   if (ppPrintBtn){
     ppPrintBtn.addEventListener('click', function(){ window.print(); });
+  }
+
+  var ppDownloadBtn = document.getElementById('pp-download-btn');
+  if (ppDownloadBtn){
+    ppDownloadBtn.addEventListener('click', function(){ downloadUplatnicaPNG(); });
+  }
+
+  // Crta uplatnicu direktno na <canvas> (bez spoljašnjih biblioteka — pouzdano radi i offline)
+  // Dimenzije stvarnog obrasca: 210mm x 100mm
+  function downloadUplatnicaPNG(){
+    var MM_TO_PX = 8; // ~203 DPI
+    var W = Math.round(210 * MM_TO_PX);
+    var H = Math.round(100 * MM_TO_PX);
+    var canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    var ctx = canvas.getContext('2d');
+
+    function t(id){ var el = document.getElementById(id); return el ? el.textContent.trim() : ''; }
+
+    var data = {
+      payer: t('up-payer'),
+      purpose: t('up-purpose'),
+      receiver: t('up-receiver'),
+      code: t('up-code'),
+      amount: t('up-amount'),
+      account: t('up-account')
+    };
+
+    // pozadina
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = '#222222';
+    ctx.fillStyle = '#111111';
+    ctx.lineWidth = 2;
+    var pad = 14;
+    ctx.strokeRect(pad, pad, W - pad*2, H - pad*2);
+
+    var leftW = (W - pad*2) * 0.62;
+    var rightX = pad + leftW;
+    var rightW = (W - pad*2) - leftW;
+    var innerTop = pad + 10;
+    var innerBottom = H - pad - 96;
+
+    // vertikalna linija koja deli levo/desno
+    ctx.beginPath();
+    ctx.moveTo(rightX, innerTop);
+    ctx.lineTo(rightX, innerBottom);
+    ctx.stroke();
+
+    function labelFont(){ ctx.font = '400 15px Arial, sans-serif'; ctx.fillStyle = '#444444'; }
+    function valueFont(){ ctx.font = '700 20px Arial, sans-serif'; ctx.fillStyle = '#111111'; }
+    function wrapText(text, x, y, maxWidth, lineHeight){
+      var words = String(text).split(' ');
+      var line = '';
+      for (var n = 0; n < words.length; n++){
+        var testLine = line + words[n] + ' ';
+        if (ctx.measureText(testLine).width > maxWidth && n > 0){
+          ctx.fillText(line, x, y);
+          line = words[n] + ' ';
+          y += lineHeight;
+        } else { line = testLine; }
+      }
+      ctx.fillText(line, x, y);
+      return y;
+    }
+
+    // ===== LEVA KOLONA: Platilac / Svrha uplate / Primalac =====
+    var boxGap = 10;
+    var leftBoxW = leftW - 20;
+    var boxH1 = 62, boxH2 = 62, boxH3 = 74;
+    var by = innerTop;
+
+    function drawBox(x, y, w, h, label, value, big){
+      ctx.strokeStyle = '#222222';
+      ctx.lineWidth = 1.4;
+      ctx.strokeRect(x, y, w, h);
+      labelFont();
+      ctx.fillText(label, x + 8, y + 18);
+      if (big) valueFont(); else { ctx.font = '600 17px Arial, sans-serif'; ctx.fillStyle = '#111111'; }
+      wrapText(value, x + 8, y + 40, w - 16, 22);
+    }
+
+    drawBox(pad + 10, by, leftBoxW, boxH1, 'Платилац', data.payer); by += boxH1 + boxGap;
+    drawBox(pad + 10, by, leftBoxW, boxH2, 'Сврха уплате', data.purpose); by += boxH2 + boxGap;
+    drawBox(pad + 10, by, leftBoxW, boxH3, 'Прималац', data.receiver); by += boxH3 + boxGap;
+
+    // potpis platioca linija
+    ctx.strokeStyle = '#222222'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad + 10, innerBottom - 4); ctx.lineTo(pad + 10 + leftBoxW, innerBottom - 4); ctx.stroke();
+    ctx.font = '400 13px Arial, sans-serif'; ctx.fillStyle = '#444444';
+    ctx.fillText('Потпис платиоца', pad + 10, innerBottom + 16);
+
+    // ===== DESNA KOLONA =====
+    var rx = rightX + 14;
+    var rw = rightW - 24;
+    ctx.font = '800 19px Arial, sans-serif'; ctx.fillStyle = '#111111'; ctx.textAlign = 'right';
+    ctx.fillText('НАЛОГ ЗА УПЛАТУ', rightX + rightW - 6, innerTop + 20);
+    ctx.textAlign = 'left';
+
+    var ry = innerTop + 36;
+    var col3w = rw / 3 - 4;
+    drawBox(rx, ry, col3w, 46, 'Шифра плаћања', data.code);
+    drawBox(rx + col3w + 6, ry, col3w, 46, 'Валута', 'RSD');
+    drawBox(rx + (col3w + 6) * 2, ry, col3w, 46, 'Износ', data.amount);
+    ry += 46 + boxGap;
+
+    drawBox(rx, ry, rw, 46, 'Рачун примаоца', data.account);
+    ry += 46 + boxGap;
+
+    var col2w = rw / 2 - 3;
+    drawBox(rx, ry, col2w, 40, 'Број модела', '—');
+    drawBox(rx + col2w + 6, ry, col2w, 40, 'Позив на број (одобрење)', '—');
+    ry += 40 + boxGap;
+
+    ctx.strokeStyle = '#222222'; ctx.lineWidth = 1.3;
+    ctx.strokeRect(rx + rw - 18, innerBottom - 22, 18, 18);
+    ctx.font = '400 13px Arial, sans-serif'; ctx.fillStyle = '#333333'; ctx.textAlign = 'right';
+    ctx.fillText('Хитно', rx + rw - 24, innerBottom - 9);
+    ctx.textAlign = 'left';
+
+    // ===== DONJI RED =====
+    var footerY = innerBottom + 30;
+    ctx.strokeStyle = '#222222'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad + 10, innerBottom + 6); ctx.lineTo(W - pad - 10, innerBottom + 6); ctx.stroke();
+    ctx.font = '400 13px Arial, sans-serif'; ctx.fillStyle = '#444444';
+    ctx.fillText('Место и датум пријема', pad + 10, footerY);
+    ctx.textAlign = 'right';
+    ctx.fillText('Датум извршења', W - pad - 10, footerY);
+    ctx.textAlign = 'left';
+
+    ctx.font = '400 12px Arial, sans-serif'; ctx.fillStyle = '#777777'; ctx.textAlign = 'right';
+    ctx.fillText('Образац бр. 1', W - pad - 8, H - pad - 6);
+    ctx.textAlign = 'left';
+
+    // preuzimanje
+    var link = document.createElement('a');
+    link.download = 'uplatnica-slovo-i-broj.png';
+    link.href = canvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   /* ===== consultation modal ===== */
