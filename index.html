@@ -9,7 +9,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
   :root{
@@ -1146,50 +1145,21 @@
     paymentScreen.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'center'});
 
     var qrContainer = document.getElementById('pp-qr');
-    qrContainer.innerHTML = '<span class="pp-qr-loading">Учитавање QR кôда…</span>';
-    renderQrWithFallback(qrContainer, ipsString);
+    renderQrImage(qrContainer, ipsString);
   }
 
-  var QR_LIB_SOURCES = [
-    'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
-    'https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js',
-    'https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@gh-pages/qrcode.min.js'
-  ];
-  function loadScriptOnce(src){
-    return new Promise(function(resolve, reject){
-      var existing = document.querySelector('script[src="' + src + '"]');
-      if (existing){ resolve(); return; }
-      var s = document.createElement('script');
-      s.src = src;
-      s.onload = function(){ resolve(); };
-      s.onerror = function(){ reject(new Error('load failed: ' + src)); };
-      document.head.appendChild(s);
-    });
-  }
-  function ensureQrLib(sources){
-    if (window.QRCode) return Promise.resolve();
-    if (!sources.length) return Promise.reject(new Error('no more sources'));
-    var next = sources.slice(1);
-    return loadScriptOnce(sources[0]).then(function(){
-      if (window.QRCode) return;
-      return ensureQrLib(next);
-    }).catch(function(){
-      return ensureQrLib(next);
-    });
-  }
-  function renderQrWithFallback(container, text){
-    ensureQrLib(QR_LIB_SOURCES.slice()).then(function(){
-      container.innerHTML = '';
-      if (!window.QRCode) throw new Error('QRCode still unavailable');
-      new QRCode(container, {
-        text: text, width: 200, height: 200,
-        colorDark: '#152A4E', colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.M
-      });
-    }).catch(function(){
-      container.innerHTML = '';
-      container.textContent = 'QR код тренутно није доступан — покушајте поново или користите картицу "Уплатница за штампу".';
-    });
+  function renderQrImage(container, text){
+    container.innerHTML = '';
+    var img = document.createElement('img');
+    img.width = 200;
+    img.height = 200;
+    img.alt = 'IPS QR код';
+    img.style.display = 'block';
+    img.onerror = function(){
+      container.innerHTML = 'QR код тренутно није доступан — покушајте поново или користите картицу "Уплатница за штампу".';
+    };
+    img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&ecc=M&data=' + encodeURIComponent(text);
+    container.appendChild(img);
   }
 
   var ppConfirmBtn = document.getElementById('pp-confirm-btn');
