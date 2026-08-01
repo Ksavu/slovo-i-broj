@@ -688,12 +688,14 @@
         <div class="pf-row">
           <label class="pf-field">
             <span>Име и презиме родитеља</span>
-            <input type="text" name="ime" required autocomplete="name">
+            <input type="text" name="roditelj" required autocomplete="name">
           </label>
           <label class="pf-field">
             <span>Име и презиме ученика</span>
             <input type="text" name="ime" required autocomplete="name">
           </label>
+        </div>
+        <div class="pf-row">
           <label class="pf-field">
             <span>Разред</span>
             <select name="razred" required>
@@ -713,15 +715,19 @@
               <option>Одрасли / остало</option>
             </select>
           </label>
-        </div>
-        <div class="pf-row">
           <label class="pf-field">
             <span>Телефон</span>
             <input type="tel" name="telefon" required autocomplete="tel">
           </label>
+        </div>
+        <div class="pf-row">
           <label class="pf-field">
             <span>Имејл</span>
             <input type="email" name="email" required autocomplete="email">
+          </label>
+          <label class="pf-field">
+            <span>Адреса (улица и број)</span>
+            <input type="text" name="adresa" required autocomplete="street-address">
           </label>
         </div>
         <div class="pf-row">
@@ -1024,9 +1030,10 @@
 
   /* ===== EmailJS — PODESI PRE OBJAVE SAJTA (besplatan nalog na emailjs.com) ===== */
   var EMAILJS_CONFIG = {
-    publicKey:  'YOUR_PUBLIC_KEY',   // <- Account > General > Public Key
-    serviceId:  'YOUR_SERVICE_ID',   // <- Email Services > tvoj servis (npr. Gmail)
-    templateId: 'YOUR_TEMPLATE_ID'   // <- Email Templates > tvoj template
+    publicKey:   'YOUR_PUBLIC_KEY',    // <- Account > General > Public Key
+    serviceId:   'YOUR_SERVICE_ID',    // <- Email Services > tvoj servis (npr. Gmail)
+    templateId:  'YOUR_TEMPLATE_ID',   // <- Email Templates > template koji STIŽE TEBI (škola) sa svim podacima prijave
+    templateIdPotvrda: 'YOUR_CONFIRMATION_TEMPLATE_ID'  // <- drugi template koji STIŽE RODITELJU kao automatska potvrda prijema (To Email u tom template-u mora biti {{email_ucenika}})
   };
   var emailjsReady = false;
   try {
@@ -1039,7 +1046,14 @@
   function posaljiPrijavuNaEmail(params){
     if (!emailjsReady) return;
     try {
-      emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, params);
+      // 1) imejl školi (tebi) sa svim podacima prijave
+      if (EMAILJS_CONFIG.templateId !== 'YOUR_TEMPLATE_ID'){
+        emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, params);
+      }
+      // 2) automatska potvrda prijema roditelju/učeniku na uneti imejl
+      if (EMAILJS_CONFIG.templateIdPotvrda !== 'YOUR_CONFIRMATION_TEMPLATE_ID'){
+        emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateIdPotvrda, params);
+      }
     } catch (err) { /* tiho zanemari — prikaz na ekranu i dalje radi */ }
   }
 
@@ -1102,24 +1116,36 @@
     var pkgVal = pfPaketSelect ? pfPaketSelect.value : '';
     var pkgLabel = (pfPaketSelect && pfPaketSelect.selectedIndex >= 0) ? pfPaketSelect.options[pfPaketSelect.selectedIndex].textContent : '';
     var amount = PRICE_RSD[pkgVal] || 0;
+    var roditeljVal = pfForm.querySelector('input[name="roditelj"]').value.trim();
     var imeField = pfForm.querySelector('input[name="ime"]');
     var imeVal = imeField ? imeField.value.trim() : '';
     var razredVal = pfForm.querySelector('select[name="razred"]').value;
     var telefonVal = pfForm.querySelector('input[name="telefon"]').value.trim();
     var emailVal = pfForm.querySelector('input[name="email"]').value.trim();
+    var adresaVal = pfForm.querySelector('input[name="adresa"]').value.trim();
     var gradVal = pfForm.querySelector('input[name="grad"]').value.trim();
     var terminEl = pfForm.querySelector('input[name="termin"]:checked');
     var terminVal = terminEl ? terminEl.value : '';
-    var purpose = ('Часови - ' + imeVal + ' - ' + pkgLabel).replace(/\|/g, '-').slice(0, 100);
+
+    // prikaz (ćirilica, čitljivo ljudima) — koristi se na ekranu i na štampanoj uplatnici
+    var purposeDisplay = 'Часови';
+    var payerDisplay = roditeljVal + (adresaVal ? (', ' + adresaVal) : '') + (gradVal ? (', ' + gradVal) : '');
+
+    // IPS QR string mora biti "bezbedan" zapis: samo latinična slova/brojevi/razmak/osnovna interpunkcija,
+    // bez ćirilice i bez navodnika/zapeta koje NBS validator odbija — zato se ovde odvojeno pravi ASCII verzija
     var accountClean = IPS_CONFIG.account.replace(/\D/g, '');
     var amountFormatted = 'RSD' + amount.toFixed(2).replace('.', ',');
-    var ipsString = 'K:PR|V:01|C:1|R:' + accountClean + '|N:' + IPS_CONFIG.receiverName + '|I:' + amountFormatted + '|SF:' + IPS_CONFIG.paymentCode + '|S:' + purpose;
+    var receiverIps = sanitizeIpsField(IPS_CONFIG.receiverName, 70);
+    var purposeIps = sanitizeIpsField(purposeDisplay, 35);
+    var ipsString = 'K:PR|V:01|C:1|R:' + accountClean + '|N:' + receiverIps + '|I:' + amountFormatted + '|SF:' + IPS_CONFIG.paymentCode + '|S:' + purposeIps;
 
     posaljiPrijavuNaEmail({
+      roditelj: roditeljVal,
       ime_ucenika: imeVal,
       razred: razredVal,
       telefon: telefonVal,
       email_ucenika: emailVal,
+      adresa: adresaVal,
       grad: gradVal,
       termin: terminVal,
       paket: pkgLabel,
@@ -1130,7 +1156,7 @@
     amountEl.textContent = amount.toLocaleString('sr-RS') + ' RSD';
     document.getElementById('pp-receiver').textContent = IPS_CONFIG.receiverName;
     document.getElementById('pp-account').textContent = IPS_CONFIG.account;
-    document.getElementById('pp-purpose').textContent = purpose;
+    document.getElementById('pp-purpose').textContent = purposeDisplay;
 
     var isPlaceholderAccount = /^0+$/.test(accountClean) || accountClean.length !== 18;
     var warningEl = document.getElementById('pp-config-warning');
@@ -1140,8 +1166,8 @@
     document.getElementById('up-code').textContent = IPS_CONFIG.paymentCode;
     document.getElementById('up-amount').textContent = '=' + amount.toLocaleString('sr-RS', {minimumFractionDigits:2, maximumFractionDigits:2});
     document.getElementById('up-account').textContent = IPS_CONFIG.account;
-    document.getElementById('up-purpose').textContent = purpose;
-    document.getElementById('up-payer').textContent = imeVal + (gradVal ? (', ' + gradVal) : '');
+    document.getElementById('up-purpose').textContent = purposeDisplay;
+    document.getElementById('up-payer').textContent = payerDisplay;
 
     var paymentScreen = document.getElementById('prijava-payment');
     paymentScreen.hidden = false;
@@ -1150,6 +1176,16 @@
 
     var qrContainer = document.getElementById('pp-qr');
     renderQrImage(qrContainer, ipsString);
+  }
+
+  // Latinizuje i čisti tekst za IPS QR tagove (N, S) — samo slova A-Z/a-z, brojevi, razmak i . , - /
+  function sanitizeIpsField(text, maxLen){
+    var latin = toLatin(text || '');
+    var diacritics = {'č':'c','ć':'c','ž':'z','š':'s','đ':'dj','Č':'C','Ć':'C','Ž':'Z','Š':'S','Đ':'Dj'};
+    latin = latin.replace(/[čćžšđČĆŽŠĐ]/g, function(ch){ return diacritics[ch]; });
+    latin = latin.replace(/[^A-Za-z0-9 .,\-\/]/g, '');
+    latin = latin.replace(/\s+/g, ' ').trim();
+    return latin.slice(0, maxLen);
   }
 
   function renderQrImage(container, text){
