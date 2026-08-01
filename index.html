@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Слово и Број — Онлајн школа за српски језик и математику</title>
 <meta name="description" content="Онлајн школа Слово и Број — часови математике и српског језика за основце и средњошколце.">
+<link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -51,7 +52,8 @@
   .nav{position:sticky; top:0; z-index:30; background:#fff; border-bottom:1px solid var(--border);}
   .nav .container{display:flex; align-items:center; justify-content:space-between; padding:14px 28px; gap:24px;}
   .brand{display:flex; align-items:center; gap:10px;}
-  .brand-mark{width:46px; height:46px; border-radius:12px; background:linear-gradient(155deg,var(--navy),var(--navy-2)); display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0;}
+  .brand-mark{width:52px; height:46px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .brand-mark img{width:100%; height:100%; object-fit:contain;}
   .brand-mark svg{width:24px; height:24px; stroke:#fff; stroke-width:1.8; fill:none; stroke-linecap:round; stroke-linejoin:round;}
   .brand-text{line-height:1.25;}
   .brand-text .name{font-family:'Golos Text',sans-serif; font-weight:800; font-size:1.28rem; color:var(--navy); letter-spacing:.01em;}
@@ -346,7 +348,7 @@
 <header class="nav">
   <div class="container">
     <div class="brand">
-      <div class="brand-mark"><svg viewBox="0 0 24 24"><use href="#ic-book-open"/></svg></div>
+      <div class="brand-mark"><img src="logo-icon.png" alt="Слово и Број лого"></div>
       <div class="brand-text">
         <div class="name">СЛОВО И БРОЈ</div>
         <div class="tagline">Онлајн школа за српски језик и математику</div>        
@@ -1040,7 +1042,7 @@
 
   /* ===== IPS uplata — PODESI OVE PODATKE PRE OBJAVE SAJTA ===== */
   var IPS_CONFIG = {
-    account: '150038162820621871',      // <- UPIŠI svoj 18-cifreni tekući račun (bez crtica). Nađeš ga u e-bankingu ili na ips.nbs.rs
+    account: '115038162820621871',      // <- UPIŠI svoj 18-cifreni tekući račun (bez crtica). Nađeš ga u e-bankingu ili na ips.nbs.rs
     receiverName: 'Слово и Број, Београд', // <- naziv i sedište primaoca (do ~70 karaktera)
     paymentCode: '289'                   // šifra plaćanja (221 = promet robe i usluga - finalna potrošnja; menjaj po potrebi)
   };
