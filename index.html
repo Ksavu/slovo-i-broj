@@ -352,6 +352,8 @@
   footer .foot-links a{transition:color .2s;}
   footer .foot-links a:hover{color:#fff;}
   .foot-contact li{display:flex; align-items:center; gap:9px;}
+  .foot-contact li a{display:flex; align-items:center; gap:9px; color:inherit; transition:color .2s;}
+  .foot-contact li a:hover{color:#fff;}
   .foot-contact svg{width:16px; height:16px; stroke:var(--orange); flex-shrink:0;}
   .foot-social{display:flex; gap:10px; margin-top:16px;}
   .foot-social a{width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); display:flex; align-items:center; justify-content:center; transition:background .2s, border-color .2s, transform .2s;}
@@ -543,47 +545,6 @@
     </div>
   </section>
 
-  <section class="instructors reveal" id="predavaci">
-    <div class="container">
-      <div class="sec-head">
-        <div class="sec-eyebrow">Предавачи</div>
-        <h2 class="sec-title">Упознајте наше професоре</h2>
-        <div class="dot-rule"><span></span><i></i><span></span></div>
-      </div>
-
-      <div class="instructor-grid">
-
-        <div class="instructor-card">
-          <div class="instructor-avatar av-navy">
-            <!-- Замени SVG са <img src="profesor-matematika.jpg" alt="Име Презиме"> кад имаш фотографију -->
-            <svg viewBox="0 0 100 100"><circle cx="50" cy="38" r="20"/><path d="M14 92c0-20 16-32 36-32s36 12 36 32"/></svg>
-          </div>
-          <h3>Наташа Вукша</h3>
-          <div class="instructor-role">Професор математике</div>
-          <p class="instructor-bio">Професор математике са 16 година искуства у настави у Основној школи „Сава Шумановић“ у Земуну. У раду са ученицима негује отворен и подстицајан приступ, у којем нема места страху од математике. Верује да се трајно знање гради кроз разумевање, а не кроз учење напамет, због чега посебан акценат ставља на развијање логичког размишљања и правилно разумевање прочитаног задатка. Циљ њеног рада је да ученици стекну сигурност у сопствено знање, самопоуздање при решавању задатака и навику да размишљају логички.</p>
-          <ul class="instructor-tags">
-            <li>Природно-математички факултет</li>
-          </ul>
-        </div>
-
-        <div class="instructor-card">
-          <div class="instructor-avatar av-teal">
-            <svg viewBox="0 0 100 100"><circle cx="50" cy="38" r="20"/><path d="M14 92c0-20 16-32 36-32s36 12 36 32"/></svg>
-          </div>
-          <h3>Мироје Бурић</h3>
-          <div class="instructor-role">Професор српског језика</div>
-          <p class="instructor-bio">Професор српског језика са вишегодишњим искуством у раду са децом основношколског и средњошколског узраста. Кроз отворен приступ индивидуалним потребама сваког ученика и пажљиво грађење поверења на релацији ученик, родитељ, професор, у настави инсистира на педагошком приступу учења, које има за циљ не само резултате који су видљиви кроз оцене, него и припрему темеља за наставак образовања и развијања личности деце. Учествовао је у више Еразмус пројеката, у којима је сакупио значајно искуство савременог приступа европских школских система у учењу. Учење српског језика и књижевности за свако дете би требало да представља занимљив простор слободе, маште, игре и истовремено развијања радних навика читања и континуитета учења граматике.</p>
-          <ul class="instructor-tags">
-            <li>Филолошки факултет</li>
-          </ul>
-        </div>
-
-      </div>
-
-      <p class="instructor-note">* Замени имена, фотографије и биографије стварним подацима пре објаве сајта.</p>
-    </div>
-  </section>
-
   <section class="pricing reveal" id="paketi">
     <div class="container">
       <div class="sec-head">
@@ -743,6 +704,47 @@
           <p>Редовно пратимо напредак и обавештавамо родитеље.</p>
         </div>
       </div>
+    </div>
+  </section>
+
+    <section class="instructors reveal" id="predavaci">
+    <div class="container">
+      <div class="sec-head">
+        <div class="sec-eyebrow">Предавачи</div>
+        <h2 class="sec-title">Упознајте наше професоре</h2>
+        <div class="dot-rule"><span></span><i></i><span></span></div>
+      </div>
+
+      <div class="instructor-grid">
+
+        <div class="instructor-card">
+          <div class="instructor-avatar av-navy">
+            <!-- Замени SVG са <img src="profesor-matematika.jpg" alt="Име Презиме"> кад имаш фотографију -->
+            <svg viewBox="0 0 100 100"><circle cx="50" cy="38" r="20"/><path d="M14 92c0-20 16-32 36-32s36 12 36 32"/></svg>
+          </div>
+          <h3>Наташа Вукша</h3>
+          <div class="instructor-role">Професор математике</div>
+          <p class="instructor-bio">Професор математике са 16 година искуства у настави у Основној школи „Сава Шумановић“ у Земуну. У раду са ученицима негује отворен и подстицајан приступ, у којем нема места страху од математике. Верује да се трајно знање гради кроз разумевање, а не кроз учење напамет, због чега посебан акценат ставља на развијање логичког размишљања и правилно разумевање прочитаног задатка. Циљ њеног рада је да ученици стекну сигурност у сопствено знање, самопоуздање при решавању задатака и навику да размишљају логички.</p>
+          <ul class="instructor-tags">
+            <li>Природно-математички факултет</li>
+          </ul>
+        </div>
+
+        <div class="instructor-card">
+          <div class="instructor-avatar av-teal">
+            <svg viewBox="0 0 100 100"><circle cx="50" cy="38" r="20"/><path d="M14 92c0-20 16-32 36-32s36 12 36 32"/></svg>
+          </div>
+          <h3>Мироје Бурић</h3>
+          <div class="instructor-role">Професор српског језика</div>
+          <p class="instructor-bio">Професор српског језика са вишегодишњим искуством у раду са децом основношколског и средњошколског узраста. Кроз отворен приступ индивидуалним потребама сваког ученика и пажљиво грађење поверења на релацији ученик, родитељ, професор, у настави инсистира на педагошком приступу учења, које има за циљ не само резултате који су видљиви кроз оцене, него и припрему темеља за наставак образовања и развијања личности деце. Учествовао је у више Еразмус пројеката, у којима је сакупио значајно искуство савременог приступа европских школских система у учењу. Учење српског језика и књижевности за свако дете би требало да представља занимљив простор слободе, маште, игре и истовремено развијања радних навика читања и континуитета учења граматике.</p>
+          <ul class="instructor-tags">
+            <li>Филолошки факултет</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <p class="instructor-note">* Замени имена, фотографије и биографије стварним подацима пре објаве сајта.</p>
     </div>
   </section>
 
@@ -995,7 +997,10 @@
         <h5>Контакт</h5>
         <ul class="foot-links foot-contact no-translit">
           <li><svg viewBox="0 0 24 24"><use href="#ic-mail" xlink:href="#ic-mail"/></svg>slovoibrojonline@gmail.com</li>
-          <li><svg viewBox="0 0 24 24"><use href="#ic-phone" xlink:href="#ic-phone"/></svg>+381 6X XXX XXXX</li>
+          <li><svg viewBox="0 0 24 24"><use href="#ic-phone" xlink:href="#ic-phone"/></svg>+381 62 208 188</li>
+          <li><a href="https://wa.me/38162208188" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><use href="#ic-whatsapp" xlink:href="#ic-whatsapp"/></svg>WhatsApp</a></li>
+          <li><a href="viber://chat?number=%2B38162208188" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><use href="#ic-viber" xlink:href="#ic-viber"/></svg>Viber</a></li>
+          <li><a href="https://instagram.com/slovoibrojonline" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><use href="#ic-instagram" xlink:href="#ic-instagram"/></svg>Instagram</a></li>
         </ul>
       </div>
     </div>
