@@ -1153,7 +1153,7 @@
     serviceId:   'service_g9v9xc5',    // <- Email Services > tvoj servis (npr. Gmail)
     templateId:  'template_4e08kf9',   // <- Email Templates > template koji STIŽE TEBI (škola) sa svim podacima prijave
     templateIdPotvrda: 'template_8bcnbc8',  // <- drugi template koji STIŽE RODITELJU kao automatska potvrda prijema (To Email u tom template-u mora biti {{email_ucenika}})
-    templateIdKonsultacija: 'YOUR_KONSULTACIJA_TEMPLATE_ID'  // <- treći template za upite sa dugmeta "Zakaži besplatnu konsultaciju" — STIŽE TEBI (To Email = tvoj imejl)
+    // NAPOMENA: upiti sa "Zakaži besplatnu konsultaciju" više NE idu preko EmailJS-a — vidi WEB3FORMS_CONFIG niže
   };
   var emailjsReady = false;
   try {
@@ -1177,13 +1177,30 @@
     } catch (err) { /* tiho zanemari — prikaz na ekranu i dalje radi */ }
   }
 
+  /* ===== Web3Forms — za "Zakaži besplatnu konsultaciju" (besplatan nalog na web3forms.com) ===== */
+  var WEB3FORMS_CONFIG = {
+    accessKey: '3cc4dd20-8ba8-48e9-bab7-c469e3c91c2d'  // <- dobijaš ga na web3forms.com (samo upišeš svoj imejl, ključ stigne odmah, bez naloga)
+  };
+
   function posaljiKonsultacijuNaEmail(params){
-    if (!emailjsReady) return;
+    if (WEB3FORMS_CONFIG.accessKey === 'YOUR_WEB3FORMS_ACCESS_KEY') return;
     try {
-      if (EMAILJS_CONFIG.templateIdKonsultacija !== 'YOUR_KONSULTACIJA_TEMPLATE_ID'){
-        emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateIdKonsultacija, params);
-      }
-    } catch (err) { /* tiho zanemari */ }
+      fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_CONFIG.accessKey,
+          subject: 'Нови упит за консултацију — ' + params.ime_ucenika,
+          from_name: 'Слово и Број — сајт',
+          replyto: params.email_ucenika,
+          'Име и презиме': params.ime_ucenika,
+          'Разред': params.razred,
+          'Телефон': params.telefon,
+          'Имејл': params.email_ucenika,
+          'Питање': params.poruka
+        })
+      });
+    } catch (err) { /* tiho zanemari — prikaz na ekranu i dalje radi */ }
   }
 
   /* ===== IPS uplata — PODESI OVE PODATKE PRE OBJAVE SAJTA ===== */
